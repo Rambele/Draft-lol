@@ -27,14 +27,16 @@ url = 'https://www.metasrc.com/lol'
 driver.get(url)
 
 # Attendre que la page se charge complètement
-wait = WebDriverWait(driver, 20)
+wait = WebDriverWait(driver, 60)
 wait.until(EC.presence_of_element_located((By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[1]/section[1]/div[1]/a[1]')))
 
 # Obtenez une liste de tous les champions présents sur la page
 champion_elements = driver.find_elements(By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[1]/section[1]/div[1]/a')
 
-# Créer un graphe pour stocker les champions et les meilleurs bans
+# Créer un graphe pour stocker les champions leurs données et leurs relations avec les autre champion
 graphe = nx.Graph()
+# Dictionnaire pour stocker des données supplémentaires sur les sommets
+champion_data = {}
 
 links = []
 list_champ_name = []
@@ -49,12 +51,8 @@ for champion_element in champion_elements:
     links.append(champion_element.get_attribute('href'))
     print(champion_name)
 
-# Accéder à la page du premier champion pour obtenir les meilleurs bans
-
-#premier_champion_element = champion_elements[0]
-#premier_champion_name = premier_champion_element.text
-#premier_champion_element.click()
-i = 0
+   
+i = 0 # le i pour acceder au lien numero i champion i pendant la boucle
 for champion in list_champ_name:
 
     driver.get(links[i])
@@ -65,6 +63,24 @@ for champion in list_champ_name:
     meilleurs_bans_elements = driver.find_elements(By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[6]/section[1]/div[1]/div[1]/div[1]/a')
     # Ajouter chaque meilleur ban comme un sommet au graphe
     j=1
+
+    # Récuperer les donnée de champion i 
+    wait.until(EC.presence_of_element_located((By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[1]/div[1]/header[1]/div[1]/div[1]/div[1]/div[2]/span[1]/div[1]/span')))
+    donnees = []
+    donnee_champ_elements = driver.find_elements(By.XPATH, '/html/body/div[2]/main/article/div/div[1]/div/header/div/div/div[1]/div[2]/span/div/span')
+    for donnee_champ_element in donnee_champ_elements :
+        info_text = donnee_champ_element.text.split("\n")
+        info = info_text[1].strip()
+        donnees.append(info)
+    # Clés fixes
+    cles_fixes = ['Tier', 'Win', 'Role', 'Pick', 'Ban', 'Games', 'KDA', 'Score']
+    # Créer un dictionnaire en utilisant les clés fixes
+    donnees_champion = dict(zip(cles_fixes, donnees))
+    print(donnees_champion)
+    graphe.nodes[champion].update(donnees_champion)
+    print("Donnée mise a jour \2" + champion)
+    #=============FIN RECUPERATION============
+
     for meilleur_ban_element in meilleurs_bans_elements:
         #meilleur_ban_name = meilleur_ban_element.get_attribute('title')
         href = meilleur_ban_element.get_attribute('href')
