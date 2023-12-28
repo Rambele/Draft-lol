@@ -1,0 +1,47 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# Utilisation du navigateur Chrome. Assurez-vous d'avoir le driver correspondant installé.
+driver = webdriver.Chrome()
+
+# Ouvrir la page web
+driver.get("https://draftlol.dawe.gg/u-kfyrgC/vM4RVj-o")
+
+# Fonction pour attendre que le joueur Red soit prêt et cliquer sur "Ready"
+def wait_for_red_turn(driver):
+    WebDriverWait(driver, 60).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "div.roomReadyBackgroundred.active"))
+    )
+    print("C'est le tour de Red.")
+    
+    # Ajouter le clic sur "Ready" pour le joueur Red
+    room_ready_red = driver.find_element(By.CSS_SELECTOR, "div.roomReadyBackgroundred.active")
+    room_ready_red.click()
+    print("Le joueur Red a cliqué sur Ready.")
+
+# Fonction pour attendre que le joueur Blue soit prêt et cliquer sur "Ready"
+def wait_for_blue_turn(driver):
+    WebDriverWait(driver, 60).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "div.roomReadyBackgroundblue.active"))
+    )
+    print("C'est le tour de Blue.")
+    
+    # Ajouter le clic sur "Ready" pour le joueur Blue
+    room_ready_blue = driver.find_element(By.CSS_SELECTOR, "div.roomReadyBackgroundblue.active")
+    room_ready_blue.click()
+    print("Le joueur Blue a cliqué sur Ready.")
+
+# Attendre que la page soit chargée (timeout de 10 secondes)
+try:
+    for _ in range(6):
+        # Attendre que ce soit le tour de Red et cliquer sur "Ready"
+        wait_for_red_turn(driver)
+
+        # Attendre que ce soit le tour de Blue et cliquer sur "Ready"
+        wait_for_blue_turn(driver)
+
+finally:
+    # Fermer le navigateur
+    driver.quit()

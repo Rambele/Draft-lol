@@ -1,0 +1,8 @@
+# Fichiers Python
+*.pyc
+
+# Répertoire virtuel
+venv/
+
+# Dossier autre
+flower_photos/
