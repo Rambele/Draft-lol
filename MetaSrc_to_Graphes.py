@@ -27,11 +27,11 @@ url = 'https://www.metasrc.com/lol'
 driver.get(url)
 
 # Attendre que la page se charge complètement
-wait = WebDriverWait(driver, 60)
-wait.until(EC.presence_of_element_located((By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[1]/section[1]/div[1]/a[1]')))
+wait = WebDriverWait(driver, 10)
+wait.until(EC.presence_of_element_located((By.XPATH ,'//*[@id="page-content"]/div/section/div')))
 
 # Obtenez une liste de tous les champions présents sur la page
-champion_elements = driver.find_elements(By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[1]/section[1]/div[1]/a')
+champion_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div/section/div/a')
 
 # Créer un graphe pour stocker les champions leurs données et leurs relations avec les autre champion
 graphe = nx.Graph()
@@ -58,16 +58,16 @@ for champion in list_champ_name:
     driver.get(links[i])
 
     # Attendre que la page du champion se charge complètement
-    wait.until(EC.presence_of_element_located((By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[6]/section[1]/div[1]/div[1]/div[1]/a[1]/div[1]/img[1]')))
+    wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="page-content"]/div[6]/section/div/div/div')))
     # Obtenez les éléments des meilleurs bans
-    meilleurs_bans_elements = driver.find_elements(By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[6]/section[1]/div[1]/div[1]/div[1]/a')
+    meilleurs_bans_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[6]/section/div/div/div/a')
     # Ajouter chaque meilleur ban comme un sommet au graphe
     j=1
 
     # Récuperer les donnée de champion i 
-    wait.until(EC.presence_of_element_located((By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[1]/div[1]/header[1]/div[1]/div[1]/div[1]/div[2]/span[1]/div[1]/span')))
+    wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="splash-content"]/div[2]/span/div')))
     donnees = []
-    donnee_champ_elements = driver.find_elements(By.XPATH, '/html/body/div[2]/main/article/div/div[1]/div/header/div/div/div[1]/div[2]/span/div/span')
+    donnee_champ_elements = driver.find_elements(By.XPATH, '//*[@id="splash-content"]/div[2]/span/div/span')
     for donnee_champ_element in donnee_champ_elements :
         info_text = donnee_champ_element.text.split("\n")
         info = info_text[1].strip()

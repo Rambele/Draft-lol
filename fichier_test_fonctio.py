@@ -27,35 +27,57 @@ url = 'https://www.metasrc.com/lol'
 driver.get(url)
 
 # Attendre que la page se charge complètement
-wait = WebDriverWait(driver, 20)
+wait = WebDriverWait(driver, 360)
 wait.until(EC.presence_of_element_located((By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[1]/section[1]/div[1]/a[1]')))
 
 # Obtenez une liste de tous les champions présents sur la page
-champion_element = driver.find_elements(By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[1]/section[1]/div[1]/a[1]')
+champion_elements = driver.find_elements(By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[2]/div[2]/div[1]/div[1]/div[1]/section[1]/div[1]/a')
 
 # Créer un graphe pour stocker les champions leurs données et leurs relations avec les autre champion
 graphe = nx.Graph()
 # Dictionnaire pour stocker des données supplémentaires sur les sommets
 champion_data = {}
 
+links = []
+list_champ_name = []
+# Ajouter chaque champion comme un sommet au graphe
+for champion_element in champion_elements:
+    champion_name = champion_element.text.replace("'", "").capitalize()
+    champion_name = champion_name.replace(".", "")
+    if  champion_name == 'Jarvan iv' :
+        champion_name = 'Jarvan'
+    list_champ_name.append(champion_name)
+    links.append(champion_element.get_attribute('href')) 
 
-driver.get('https://www.metasrc.com/lol/build/aatrox')
-#attednre que les données de champion ce chargant
-wait.until(EC.presence_of_element_located((By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[1]/div[1]/header[1]/div[1]/div[1]/div[1]/div[2]/span[1]/div[1]/span')))
-valeurs_champion = []
-donnee_champ_elements = driver.find_elements(By.XPATH, '/html/body/div[2]/main/article/div/div[1]/div/header/div/div/div[1]/div[2]/span/div/span')
-for donnee_champ_element in donnee_champ_elements :
-    info_text = donnee_champ_element.text.split("\n")
-    info = info_text[1].strip()
-    print(info)
-    valeurs_champion.append(info)
+   
+i = 0 # le i pour acceder au lien numero i champion i pendant la boucle
+perdu = 0
+for champion in list_champ_name:
+    driver.get(links[i])
+    # Récuperer les donnée de champion i 
+    wait.until(EC.presence_of_element_located((By.XPATH, '/html[1]/body[1]/div[2]/main[1]/article[1]/div[1]/div[1]/div[1]/header[1]/div[1]/div[1]/div[1]/div[2]/span[1]/div[1]/span')))
+    donnees = []
+    donnee_champ_elements = driver.find_elements(By.XPATH, '/html/body/div[2]/main/article/div/div[1]/div/header/div/div/div[1]/div[2]/span/div/span')
+    for donnee_champ_element in donnee_champ_elements :
+        info_text = donnee_champ_element.text.split("\n")
+        info = info_text[1].strip()
+        donnees.append(info)
+    # Clés fixes
+    cles_fixes = ['Tier', 'Win', 'Role', 'Pick', 'Ban', 'Games', 'KDA', 'Score']
+    # Créer un dictionnaire en utilisant les clés fixes
+    donnees_champion = dict(zip(cles_fixes, donnees))
+    print(donnees_champion)
+    if donnees_champion :
+        print("Donnée mise a jour \2" + champion)
+    else :
+        perdu = perdu + 1
+        print("Donnée perdu :" , perdu)
+    #=============FIN RECUPERATION============
+    i = i+1
 
-print(valeurs_champion)
-# Clés fixes
-cles_fixes = ['Tier', 'Win', 'Role', 'Pick', 'Ban', 'Games', 'KDA', 'Score']
 
-# Créer un dictionnaire en utilisant les clés fixes
-donnees_champion = dict(zip(cles_fixes, valeurs_champion))
 
-print(donnees_champion)
+# Fermer le navigateur une fois que vous avez terminé
 driver.quit()
+
+
