@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 
 
@@ -34,7 +35,7 @@ wait.until(EC.presence_of_element_located((By.XPATH ,'//*[@id="page-content"]/di
 champion_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div/section/div/a')
 
 # Créer un graphe pour stocker les champions leurs données et leurs relations avec les autre champion
-graphe = nx.Graph()
+graphe = nx.DiGraph()
 # Dictionnaire pour stocker des données supplémentaires sur les sommets
 champion_data = {}
 
@@ -47,6 +48,7 @@ for champion_element in champion_elements:
     if  champion_name == 'Jarvan iv' :
         champion_name = 'Jarvan'
     list_champ_name.append(champion_name)
+    # hewi pose probleme je le supp du graph  
     graphe.add_node(champion_name)
     links.append(champion_element.get_attribute('href'))
     print(champion_name)
@@ -56,12 +58,6 @@ i = 0 # le i pour acceder au lien numero i champion i pendant la boucle
 for champion in list_champ_name:
 
     driver.get(links[i])
-
-    # Attendre que la page du champion se charge complètement
-    wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="page-content"]/div[6]/section/div/div/div')))
-    # Obtenez les éléments des meilleurs bans
-    meilleurs_bans_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[6]/section/div/div/div/a')
-    # Ajouter chaque meilleur ban comme un sommet au graphe
     j=1
 
     # Récuperer les donnée de champion i 
@@ -81,31 +77,95 @@ for champion in list_champ_name:
     print("Donnée mise a jour \2" + champion)
     #=============FIN RECUPERATION============
 
-    for meilleur_ban_element in meilleurs_bans_elements:
-        #meilleur_ban_name = meilleur_ban_element.get_attribute('title')
-        href = meilleur_ban_element.get_attribute('href')
-        if href.split('/')[-1].replace("-", " ").capitalize() in graphe :
-          
-          meilleur_ban_name = href.split('/')[-1].replace("-", " ").capitalize()
-        else :
-            meilleur_ban_name = href.split('/')[-2].replace("-", " ").capitalize()
-    
-        if meilleur_ban_name == 'Build' :
-            print('erreur build name apeare' + champion + '/' + meilleur_ban_name )
-            print(j)
+    # ============== Récupiration des lien entre les champion ============================================
 
-        #graphe.add_node(meilleur_ban_name)
-        graphe.add_edge(champion, meilleur_ban_name)
-        j=j+1
+    wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="page-content"]/div[6]/section/div/div/div')))
+    # Obtenez les éléments des meilleurs bans
+    meilleurs_bans_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[6]/section/div/div/div/a')
+    
+    # best counters  : //*[@id="page-content"]/div[10]/section/div/div/div/a
+    try:
+        wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="page-content"]/div[10]/section/div/div/div/a')))
+    except TimeoutException:
+        # Si l'élément n'est pas présent, effectuez ici les actions que vous souhaitez en cas d'absence d'élément
+        print("L'élément n'est pas présent. Passez à l'étape suivante.")
+    else:  # ou break, selon votre logique
+        best_counters_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[10]/section/div/div/div/a')
+    
+        for best_counters_element in best_counters_elements:
+            href = best_counters_element.get_attribute('href')
+            if href.split('/')[-1].replace("-", " ").capitalize() in graphe :
+          
+                best_counters_name = href.split('/')[-1].replace("-", " ").capitalize()
+            else :
+                best_counters_name = href.split('/')[-2].replace("-", " ").capitalize()
+    
+            if best_counters_name == 'Build' :
+                print('erreur build name apeare' + champion + '/' + best_counters_name )
+
+            #graphe.add_node(meilleur_ban_name)
+            graphe.add_edge(champion, best_counters_name, type='Counter', label=best_counters_element.text)
+            j=j+1
+    #==========================================================================================================
+    # best synergies : //*[@id="page-content"]/div[7]/section/div/div/div/a
+    try:
+        wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="page-content"]/div[7]/section/div/div/div/a')))
+    except TimeoutException:
+        # Si l'élément n'est pas présent, effectuez ici les actions que vous souhaitez en cas d'absence d'élément
+        print("L'élément n'est pas présent. Passez à l'étape suivante.")
+    else:
+        best_synergy_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[7]/section/div/div/div/a')
+    
+        for best_synergy_element in best_synergy_elements:
+            href = best_synergy_element.get_attribute('href')
+            if href.split('/')[-1].replace("-", " ").capitalize() in graphe :
+          
+                best_synergy_name = href.split('/')[-1].replace("-", " ").capitalize()
+            else :
+                best_synergy_name = href.split('/')[-2].replace("-", " ").capitalize()
+    
+            if best_synergy_name == 'Build' :
+                print('erreur build name apeare' + champion + '/' + best_synergy_name )
+
+            #graphe.add_node(meilleur_ban_name)
+            graphe.add_edge(champion, best_synergy_name, type='Synergy', label=best_synergy_element.text)
+            graphe.add_edge(best_synergy_name, champion, type='Synergy', label=best_synergy_element.text)
+            j=j+1
+    #===========================================================================================================
+    # best matchups : //*[@id="page-content"]/div[11]/section/div/div/div/a
+    try:
+        wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="page-content"]/div[11]/section/div/div/div/a')))
+    except TimeoutException:
+        # Si l'élément n'est pas présent, effectuez ici les actions que vous souhaitez en cas d'absence d'élément
+        print("L'élément n'est pas présent. Passez à l'étape suivante.")
+    else:
+        best_matchup_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[11]/section/div/div/div/a')
+    
+        for best_matchup_element in best_matchup_elements:
+            href = best_matchup_element.get_attribute('href')
+            if href.split('/')[-1].replace("-", " ").capitalize() in graphe :
+          
+                best_matchup_name = href.split('/')[-1].replace("-", " ").capitalize()
+            else :
+                best_matchup_name = href.split('/')[-2].replace("-", " ").capitalize()
+    
+            if best_matchup_name == 'Build' :
+                print('erreur build name apeare' + champion + '/' + best_matchup_name )
+
+            #graphe.add_node(meilleur_ban_name)
+            graphe.add_edge(champion, best_matchup_name, type='Matchup', label=best_matchup_element.text)
+            j=j+1
+    #==========================================================================================================
     i = i+1
 
+#===========================================Graphe partie ===========================================
 # Afficher le graphe avec une mise en page améliorée
 plt.figure(figsize=(15, 15))
 pos = nx.spring_layout(graphe, seed=42)
-nx.draw(graphe, pos, with_labels=True, font_size=8, font_color='black', font_weight='bold', node_size=500, node_color='skyblue', edge_color='gray', linewidths=0.5)
-edge_labels = nx.get_edge_attributes(graphe, 'weight')
+nx.draw(graphe, pos, with_labels=True, font_size=8, font_weight='bold', node_size=500, node_color='skyblue', edge_color='gray', linewidths=0.5)
+edge_labels = nx.get_edge_attributes(graphe, 'label')
 nx.draw_networkx_edge_labels(graphe, pos, edge_labels=edge_labels)
 plt.show()
-
-# Fermer le navigateur une fois que vous avez terminé
 driver.quit()
+# Charger le graphe depuis le fichier GraphML
+#graphe_charge = nx.read_graphml(chemin_du_fichier)
