@@ -174,5 +174,11 @@ edge_labels = nx.get_edge_attributes(graphe, 'label')
 nx.draw_networkx_edge_labels(graphe, pos, edge_labels=edge_labels)
 plt.show()
 driver.quit()
+
+#========================================================================================
+
+# Sauvgarder le graphe 
+chemin_du_fichier = "./mon_graphe.graphml"
+nx.write_graphml(graphe, chemin_du_fichier)
 # Charger le graphe depuis le fichier GraphML
 #graphe_charge = nx.read_graphml(chemin_du_fichier)
