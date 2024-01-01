@@ -68,8 +68,15 @@ for champion in list_champ_name:
         info_text = donnee_champ_element.text.split("\n")
         info = info_text[1].strip()
         donnees.append(info)
+    # A jouter le role de champion 
+        
+    wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="splash-content"]/div[1]/div/div/div/div[2]/div/h1/span[2]/span[1]')))
+    role_champion_elements = driver.find_elements(By.XPATH, '//*[@id="splash-content"]/div[1]/div/div/div/div[2]/div/h1/span[2]/span[1]')
+    for role_champion_element in role_champion_elements :
+        info = role_champion_element.text
+        donnees.append(info)
     # Clés fixes
-    cles_fixes = ['Tier', 'Win', 'Role', 'Pick', 'Ban', 'Games', 'KDA', 'Score']
+    cles_fixes = ['Tier', 'Win', 'Role', 'Pick', 'Ban', 'Games', 'KDA', 'Score', 'Lane']
     # Créer un dictionnaire en utilisant les clés fixes
     donnees_champion = dict(zip(cles_fixes, donnees))
     print(donnees_champion)
