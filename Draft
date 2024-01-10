@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 driver = webdriver.Chrome()
 
 # Ouvrir la page web
-driver.get("https://draftlol.dawe.gg/u-kfyrgC/vM4RVj-o")
+driver.get("https://draftlol.dawe.gg/EIUvBZmz/I2LKhe9K")
 
 # Fonction pour attendre que le joueur Red soit prêt et cliquer sur "Ready"
 def wait_for_red_turn(driver):

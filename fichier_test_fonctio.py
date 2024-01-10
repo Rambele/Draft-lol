@@ -25,6 +25,13 @@ def visualiser_champion_et_liens(graphe, champion):
 
 # Exemple d'utilisation avec votre graphe
 # Supposons que vous avez un graphe appelé "graphe" et un champion appelé "champion_exemple"
-champion_exemple = 'Diana'
+champion_exemple = 'Lee sin'
 graphe = nx.read_graphml("./mon_graphe.graphml") # le graphe contien les données champion + lien
+print(graphe.nodes[champion_exemple]['Lane'])
 visualiser_champion_et_liens(graphe, champion_exemple)
+
+# //*[@id="page-content"]/div[7]/section/div/div/div/a[1]/div
+# //*[@id="page-content"]/div[7]/section/div/div/div/a[1]/div
+
+#//*[@id="page-content"]/div[10]/section/div/div/div/a[1]/div
+#//*[@id="page-content"]/div[13]/section/div/div/div/a[1]/div

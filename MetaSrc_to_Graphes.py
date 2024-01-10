@@ -91,13 +91,14 @@ for champion in list_champ_name:
     meilleurs_bans_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[6]/section/div/div/div/a')
     
     # best counters  : //*[@id="page-content"]/div[10]/section/div/div/div/a
+    xpath = '//*[@id="page-content"]/div[10]/section/div/div/div/a' if graphe.nodes[champion]['Lane'] != 'Jungle ' else '//*[@id="page-content"]/div[13]/section/div/div/div/a'
     try:
-        wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="page-content"]/div[10]/section/div/div/div/a')))
+        wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
     except TimeoutException:
         # Si l'élément n'est pas présent, effectuez ici les actions que vous souhaitez en cas d'absence d'élément
         print("L'élément n'est pas présent. Passez à l'étape suivante.")
     else:  # ou break, selon votre logique
-        best_counters_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[10]/section/div/div/div/a')
+        best_counters_elements = driver.find_elements(By.XPATH, xpath)
     
         for best_counters_element in best_counters_elements:
             href = best_counters_element.get_attribute('href')
@@ -116,13 +117,18 @@ for champion in list_champ_name:
     #==========================================================================================================
     # best synergies : //*[@id="page-content"]/div[7]/section/div/div/div/a
     try:
-        wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="page-content"]/div[7]/section/div/div/div/a')))
+        if graphe.nodes[champion]['Lane'] != 'Jungle ' :
+            wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="page-content"]/div[7]/section/div/div/div/a')))
+        else :
+            wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="page-content"]/div[7]/section/div/div/div/a | //*[@id="page-content"]/div[10]/section/div/div/div/a')))
     except TimeoutException:
         # Si l'élément n'est pas présent, effectuez ici les actions que vous souhaitez en cas d'absence d'élément
         print("L'élément n'est pas présent. Passez à l'étape suivante.")
     else:
-        best_synergy_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[7]/section/div/div/div/a')
-    
+        if graphe.nodes[champion]['Lane'] != 'Jungle ' : 
+            best_synergy_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[7]/section/div/div/div/a')
+        else :
+            best_synergy_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[7]/section/div/div/div/a | //*[@id="page-content"]/div[10]/section/div/div/div/a')
         for best_synergy_element in best_synergy_elements:
             href = best_synergy_element.get_attribute('href')
             if href.split('/')[-1].replace("-", " ").capitalize() in graphe :
@@ -140,13 +146,15 @@ for champion in list_champ_name:
             j=j+1
     #===========================================================================================================
     # best matchups : //*[@id="page-content"]/div[11]/section/div/div/div/a
+    
+    xpath = '//*[@id="page-content"]/div[11]/section/div/div/div/a' if graphe.nodes[champion]['Lane'] != 'Jungle ' else '//*[@id="page-content"]/div[14]/section/div/div/div/a'
     try:
-        wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="page-content"]/div[11]/section/div/div/div/a')))
+        wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
     except TimeoutException:
         # Si l'élément n'est pas présent, effectuez ici les actions que vous souhaitez en cas d'absence d'élément
         print("L'élément n'est pas présent. Passez à l'étape suivante.")
     else:
-        best_matchup_elements = driver.find_elements(By.XPATH, '//*[@id="page-content"]/div[11]/section/div/div/div/a')
+        best_matchup_elements = driver.find_elements(By.XPATH, xpath)
     
         for best_matchup_element in best_matchup_elements:
             href = best_matchup_element.get_attribute('href')
@@ -161,9 +169,15 @@ for champion in list_champ_name:
 
             #graphe.add_node(meilleur_ban_name)
             graphe.add_edge(champion, best_matchup_name, type='Matchup', label=best_matchup_element.text)
+            print(best_matchup_name,':',graphe.nodes[champion]['Lane'],':',best_matchup_element.text)
             j=j+1
     #==========================================================================================================
     i = i+1
+
+
+# Sauvgarder le graphe 
+chemin_du_fichier = "./mon_graphe.graphml"
+nx.write_graphml(graphe, chemin_du_fichier)
 
 #===========================================Graphe partie ===========================================
 # Afficher le graphe avec une mise en page améliorée
@@ -178,7 +192,6 @@ driver.quit()
 #========================================================================================
 
 # Sauvgarder le graphe 
-chemin_du_fichier = "./mon_graphe.graphml"
-nx.write_graphml(graphe, chemin_du_fichier)
+
 # Charger le graphe depuis le fichier GraphML
 #graphe_charge = nx.read_graphml(chemin_du_fichier)
