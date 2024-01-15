@@ -9,7 +9,7 @@ import time
 driver = webdriver.Chrome()
 
 # Ouvrir la page web
-driver.get("https://draftlol.dawe.gg/hRWnmzlh/xD2KM8B8")
+driver.get("https://draftlol.dawe.gg/hRWnmzlh/cPyFm2FA")
 
 # Fonction pour attendre que le joueur Red soit prêt et cliquer sur "Ready"
 def wait_for_red_turn(driver):
@@ -52,57 +52,56 @@ def click_sur_champion_random(driver):
 # Attendre que la page soit chargée (timeout de 10 secondes)
 try:
     # click ready
-    wait_for_red_turn(driver)
     wait_for_blue_turn(driver)
+    wait_for_red_turn(driver)
 
     # phase de ban 1
 
     # clicker sur un ban 1
     click_sur_champion_random(driver)
     # attendre le tour blue 
-    wait_for_red_turn(driver)
     wait_for_blue_turn(driver)
+    wait_for_red_turn(driver)
     # click pour ban 2
     click_sur_champion_random(driver)
     # attendre le tour blue
-    wait_for_red_turn(driver)
     wait_for_blue_turn(driver)
+    wait_for_red_turn(driver)
     # click pour ban3
     click_sur_champion_random(driver)
     # attndre le tour blue 
-    wait_for_red_turn(driver)
     wait_for_blue_turn(driver)
+    wait_for_red_turn(driver)
     print("FIN phase de ban 1")  
 
     #phase de pick 1
     click_sur_champion_random(driver)
-    wait_for_red_turn(driver)
-    wait_for_blue_turn(driver)
     click_sur_champion_random(driver)
-    click_sur_champion_random(driver)
-    wait_for_red_turn(driver)
     wait_for_blue_turn(driver)
+    wait_for_red_turn(driver)
+    click_sur_champion_random(driver)
+    
     print("FIN phase de pick 1")   
 
     # phase de ban 2
     click_sur_champion_random(driver) 
-    wait_for_red_turn(driver)
     wait_for_blue_turn(driver)
-    click_sur_champion_random(driver)
     wait_for_red_turn(driver)
-    wait_for_blue_turn(driver) 
+    click_sur_champion_random(driver)
     print("FIN phase de ban 2") 
 
     # phase de pick 2
     click_sur_champion_random(driver) 
-    time.sleep(0.5)
-    click_sur_champion_random(driver) 
-    wait_for_red_turn(driver)
     wait_for_blue_turn(driver)
+    wait_for_red_turn(driver)
+    click_sur_champion_random(driver)
+    
+    wait_for_blue_turn(driver)
+    wait_for_red_turn(driver)
     EC.text_to_be_present_in_element((By.XPATH, '//*[@id="root"]/div/div[7]'), "Finished")
     
-    
-    
+
+
     print("FIN de la draft") 
 finally:
     # Fermer le navigateur
