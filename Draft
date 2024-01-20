@@ -20,7 +20,7 @@ graphe = nx.read_graphml("./mon_graphe.graphml")
 driver = webdriver.Chrome()
 
 # Ouvrir la page web
-driver.get("https://draftlol.dawe.gg/mLhcJt9I/gzT38qkl")
+driver.get("https://draftlol.dawe.gg/8jA5e-fN/eqdart0N")
 
 # Fonction pour attendre que le joueur Red soit prêt et cliquer sur "Ready"
 def wait_for_red_turn(driver):
@@ -163,8 +163,9 @@ try:
     click_sur_champion_random(driver,True) 
     time.sleep(0.5)
     click_sur_champion_random(driver,True) 
-    red_side_picks.append(recuperer_info_red(driver,4))
     EC.text_to_be_present_in_element((By.XPATH, '//*[@id="root"]/div/div[7]'), "Finished")
+    red_side_picks.append(recuperer_info_red(driver,4))
+    
     
     
     
@@ -173,6 +174,8 @@ try:
     print("Blue bans : " ,blue_side_picks)
     print("Red bans : " , red_side_bans)
     print("Red bans : " , red_side_picks)
+    print("==================================")
+    print(blue_side_roles)
     
 finally:
     # Fermer le navigateur
