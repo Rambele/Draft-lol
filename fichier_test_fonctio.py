@@ -192,20 +192,8 @@ def pick_champion(champion,graphe,picks_list,roles_list) :
     roles_list.append(data.get('Lane'))
     
 
-blue_side_picks = []
-blue_side_roles = []
 
-for i in range(5):
-    pick_champion(champion_plus_stable(graphe,blue_side_picks,[],blue_side_roles),graphe,blue_side_picks,blue_side_roles)
 
-print(blue_side_roles)
-print(blue_side_picks)
-from Levenshtein import distance
 
-chaine1 = "chat"
-chaine2 = "chien"
-
-distance_levenshtein = distance(chaine1, chaine2)
-print(f"Distance de Levenshtein entre '{chaine1}' et '{chaine2}': {distance_levenshtein}")
 
 

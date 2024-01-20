@@ -6,10 +6,12 @@ import random
 import time
 import networkx as nx
 from Levenshtein import distance
-import fichier_test_fonction.py as f
+import fichier_test_fonctio as f
 blue_side_picks = []
+blue_list = []
 blue_side_roles = []
 red_side_picks = []
+red_list = []
 blue_side_bans = []
 red_side_bans = []
 numero_pick_red = 0 
@@ -18,7 +20,7 @@ graphe = nx.read_graphml("./mon_graphe.graphml")
 driver = webdriver.Chrome()
 
 # Ouvrir la page web
-driver.get("https://draftlol.dawe.gg/rMJgKYUB/VVwCqb0K")
+driver.get("https://draftlol.dawe.gg/mLhcJt9I/gzT38qkl")
 
 # Fonction pour attendre que le joueur Red soit prêt et cliquer sur "Ready"
 def wait_for_red_turn(driver):
@@ -45,10 +47,20 @@ def wait_for_blue_turn(driver):
     print("Le joueur Blue a cliqué sur Ready.")
 
 def trouve_champ_lol_list(champion,list_champion_element ) : 
-    distance_levenshtein = 0
+    distance_levenshtein = 10
     elementtrouver = list_champion_element[0]
     for element in list_champion_element :
         x = distance(champion,element.get_attribute('alt') )
+        if distance_levenshtein > x :
+            distance_levenshtein = x
+            elementtrouver = element
+    return elementtrouver
+
+def trouve_champ_graphe_list(champion,graphe) : 
+    distance_levenshtein = 10
+    elementtrouver = ''
+    for element in graphe :
+        x = distance(champion,element )
         if distance_levenshtein > x :
             distance_levenshtein = x
             elementtrouver = element
@@ -60,8 +72,16 @@ def click_sur_champion_random(driver,pickOrBan):
     )
     list_champion_element = driver.find_elements(By.XPATH, '//*[@id="root"]/div/div[6]/div[2]/img')
     elements_non_desactives = [element for element in list_champion_element if not element.get_attribute('disabled')]
-    element_aleatoire = random.choice(elements_non_desactives)
+    if(pickOrBan) : 
+        champ = f.champion_plus_stable(graphe,blue_list,red_list,blue_side_roles)
+        element_aleatoire = trouve_champ_lol_list(champ,list_champion_element)
+    else : 
+        element_aleatoire = random.choice(elements_non_desactives)
     element_aleatoire.click()
+    if(pickOrBan):
+        f.pick_champion(f.champion_plus_stable(graphe,blue_list,red_list,blue_side_roles),graphe,blue_list,blue_side_roles)
+    else :
+        f.ban_champion(trouve_champ_graphe_list(element_aleatoire.get_attribute('alt'),graphe),graphe)
     element_select = driver.find_elements(By.XPATH, '//*[@id="root"]/div/div[7]')
     element_select[0].click()
     valeur_alt = element_aleatoire.get_attribute('alt')
@@ -74,6 +94,7 @@ def recuperer_info_red(driver, num) :
     )
     champion_red_click = driver.find_elements(By.XPATH, '//*[@id="root"]/div/div[3]/div')
     champion_name = champion_red_click[num].text
+    red_list.append(trouve_champ_graphe_list(champion_name,graphe))
     return champion_name
 def recuperer_info_redban(driver, num) : 
     WebDriverWait(driver, 60).until(
@@ -81,6 +102,7 @@ def recuperer_info_redban(driver, num) :
     )
     champion_red_click = driver.find_elements(By.XPATH, '//*[@id="root"]/div/div[5]/div/img')
     champion_name = champion_red_click[num].get_attribute("alt")
+    f.ban_champion(trouve_champ_graphe_list(champion_name,graphe),graphe)
     return champion_name
 
 # Attendre que la page soit chargée (timeout de 10 secondes)
@@ -151,6 +173,7 @@ try:
     print("Blue bans : " ,blue_side_picks)
     print("Red bans : " , red_side_bans)
     print("Red bans : " , red_side_picks)
+    
 finally:
     # Fermer le navigateur
     driver.quit()
