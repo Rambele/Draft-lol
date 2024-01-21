@@ -16,11 +16,12 @@ blue_side_bans = []
 red_side_bans = []
 numero_pick_red = 0 
 graphe = nx.read_graphml("./mon_graphe.graphml")
+f.score_to_metrique(graphe)
 # Utilisation du navigateur Chrome. Assurez-vous d'avoir le driver correspondant installé.
 driver = webdriver.Chrome()
 
 # Ouvrir la page web
-driver.get("https://draftlol.dawe.gg/8jA5e-fN/eqdart0N")
+driver.get("https://draftlol.dawe.gg/iHOrqUYX/b20sv_-7")
 
 # Fonction pour attendre que le joueur Red soit prêt et cliquer sur "Ready"
 def wait_for_red_turn(driver):
