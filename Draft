@@ -21,7 +21,7 @@ f.score_to_metrique(graphe)
 driver = webdriver.Chrome()
 
 # Ouvrir la page web
-driver.get("https://draftlol.dawe.gg/iHOrqUYX/b20sv_-7")
+driver.get("https://draftlol.dawe.gg/CPKnLbCs/qMr_shV2")
 
 # Fonction pour attendre que le joueur Red soit prêt et cliquer sur "Ready"
 def wait_for_red_turn(driver):
@@ -96,6 +96,7 @@ def recuperer_info_red(driver, num) :
     champion_red_click = driver.find_elements(By.XPATH, '//*[@id="root"]/div/div[3]/div')
     champion_name = champion_red_click[num].text
     red_list.append(trouve_champ_graphe_list(champion_name,graphe))
+    f.pick_en_face(trouve_champ_graphe_list(champion_name,graphe),graphe)
     return champion_name
 def recuperer_info_redban(driver, num) : 
     WebDriverWait(driver, 60).until(
