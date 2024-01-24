@@ -12,7 +12,7 @@ graphe = nx.read_graphml("./mon_graphe.graphml")
 
 
 def best_stat_score_champion(graphe) : 
-    best_score = 0
+    best_score = -1000
     championN = ''
     for champion in graphe:
         
@@ -86,12 +86,16 @@ def champion_counters_score(champion,graphe) :
     sum_score_final = 0
     score_final = 0
     for a in list :
-        data = graphe.nodes[a]
-        score = float(data.get('Score', 0))
+        score = graphe.nodes[a]["Score"]
+        win = graphe.nodes[a]["Win"]
         poid = recupere_poid(champion,a,graphe) * -1 
-        score_final = score + poid
-        sum_score_final = sum_score_final + score_final
-    score_final = sum_score_final/len(list) if len(list) != 0 else 140
+        graphe.nodes[a]["Win"] = str(float(graphe.nodes[a]["Win"].rstrip('%'))  + poid ) + "%"
+        graphe.nodes[a]["Score"] = str(calculer_metrique_composite(a,graphe))
+        sum_score_final = sum_score_final + calculer_metrique_composite(a,graphe)
+        graphe.nodes[a]["Win"] =  win
+        graphe.nodes[a]["Score"] = score
+
+    score_final = sum_score_final/len(list) if len(list) != 0 else 1
 
     return score_final
 
@@ -101,12 +105,15 @@ def champion_matchups_score(champion,graphe) :
     sum_score_final = 0
     score_final = 0
     for a in list :
-        data = graphe.nodes[a]
-        score = float(data.get('Score', 0))
-        poid = recupere_poid(champion,a,graphe)  
-        score_final = score - poid
-        sum_score_final = sum_score_final + score_final
-    score_final = sum_score_final/len(list) if len(list) != 0 else 140
+        score = graphe.nodes[a]["Score"]
+        win = graphe.nodes[a]["Win"]
+        poid = recupere_poid(champion,a,graphe)
+        graphe.nodes[a]["Win"] = str(float(graphe.nodes[a]["Win"].rstrip('%'))  - poid ) + "%"
+        graphe.nodes[a]["Score"] = str(calculer_metrique_composite(a,graphe))  
+        sum_score_final = sum_score_final + recupere_poid(champion,a,graphe)
+        graphe.nodes[a]["Win"] =  win
+        graphe.nodes[a]["Score"] = score
+    score_final = sum_score_final/len(list) if len(list) != 0 else 0
     return score_final
     
 def champion_synrgys_score(champion,graphe) : 
@@ -114,33 +121,36 @@ def champion_synrgys_score(champion,graphe) :
     sum_score_final = 0
     score_final = 0
     for a in list :
-        data = graphe.nodes[a]
-        score = float(data.get('Score', 0))
+        score = graphe.nodes[a]["Score"]
+        win = graphe.nodes[a]["Win"]
         poid = recupere_poid(champion,a,graphe)  
-        score_final = score + poid
-        sum_score_final = sum_score_final + score_final 
-    score_final =  sum_score_final/len(list) if len(list) != 0 else 140
+        graphe.nodes[a]["Win"] = str(float(graphe.nodes[a]["Win"].rstrip('%'))  + poid ) + "%"
+        graphe.nodes[a]["Score"] = str(calculer_metrique_composite(a,graphe))
+        sum_score_final = sum_score_final + calculer_metrique_composite(a,graphe)
+        graphe.nodes[a]["Win"] =  win
+        graphe.nodes[a]["Score"] = score
+    score_final =  sum_score_final/len(list) if len(list) != 0 else 0
     return score_final
 
-def calculer_score_globale_champion(champion,graphe) :
+def calculer_score_globale_champion(champion,graphe, alpha=1, beta=1, gamma=1, delta=1, epsilon=1) :
     a = champion_counters_score(champion,graphe)
     b = champion_synrgys_score(champion,graphe)
     c = champion_matchups_score(champion,graphe)
-    data = graphe.nodes[champion]
-    score = float(data.get('Score', 0))
-    w1 = 3
-    w2 = 1
-    w3 = 4
-    w4 = 0.1
-    return  (b * w2) + (c * w3) - (a * w1) + (score * w4)
+
+    alpha = 7.70300424 # counter
+    beta = 2.14547029 #synrgy
+    gamma = 2.35279385 #matchup
+    delta = 1.05249256 #score champio
+    epsilon = 1.05652514
+    return  alpha*float(graphe.nodes[champion]["Score"])/((beta*c+gamma*b)/2-delta*a) + epsilon
 
 def champion_plus_stable(graphe,blue_pick,red_pick,blue_roles) :
     best = ''
     score = -10000
     for champion in graphe :
 
-        if score < calculer_score_globale_champion(champion,graphe) and champion not in blue_pick and champion not in red_pick and graphe.nodes[champion]['Lane'] not in blue_roles:
-            score = calculer_score_globale_champion(champion,graphe)
+        if score < calculer_metrique_composite(champion,graphe) and champion not in blue_pick and champion not in red_pick and graphe.nodes[champion]['Lane'] not in blue_roles:
+            score = calculer_metrique_composite(champion,graphe)
             best = champion
     return best
 
@@ -179,10 +189,10 @@ def pick_champion(champion,graphe,picks_list,roles_list) :
         label_actuel = float(graphe[champion][voisin]['label'])
         
         data = graphe.nodes[voisin]
-        score = float(data.get('Score', 0))
-        graphe.nodes[voisin]['Score'] = str(label_actuel  + score) 
+        win = float(data.get('Win').rstrip('%'))
+        graphe.nodes[voisin]['Win'] = str(label_actuel  + win) + "%"
     picks_list.append(champion)
-    data =data = graphe.nodes[champion]
+    data = graphe.nodes[champion]
     roles_list.append(data.get('Lane'))
     #supprimer les lien counter et match up  faudra dapater cette section pour les ban plus tard 
     for voisin in cn:
@@ -190,23 +200,25 @@ def pick_champion(champion,graphe,picks_list,roles_list) :
     for voisin in mt:
         graphe.remove_edge(champion, voisin)
 
-def pick_en_face(champion,graphe) :
+def pick_en_face(champion,graphe,list_picks) :
+    sy = get_champion_sy(champion,graphe)
     cn = get_champion_cn(champion,graphe)
     mt = get_champion_mt(champion,graphe)
     for voisin in cn:
     # Vérifiez si l'arête a un attribut 'label' et si c'est une valeur numérique
-        label_actuel = float(graphe[champion][voisin]['label']) * 10
-        
+        label_actuel = float(graphe[champion][voisin]['label'])*(-1)
         data = graphe.nodes[voisin]
-        score = float(data.get('Score', 0))* -1
-        graphe.nodes[voisin]['Score'] = str(label_actuel  + score) 
+        win = float(data.get('Win').rstrip('%'))
+        graphe.nodes[voisin]['Win'] = str(label_actuel  + win) + "%"
     for voisin in mt:
     # Vérifiez si l'arête a un attribut 'label' et si c'est une valeur numérique
-        label_actuel = float(graphe[champion][voisin]['label']) * 10
-        
+        label_actuel = float(graphe[champion][voisin]['label'])
         data = graphe.nodes[voisin]
-        score = float(data.get('Score', 0))
-        graphe.nodes[voisin]['Score'] = str(score - label_actuel  ) 
+        win = float(data.get('Win').rstrip('%'))
+        graphe.nodes[voisin]['Win'] = str(win - label_actuel  ) + "%"
+    list_picks.append(champion)
+    for voisin in sy:
+        graphe.remove_edge(champion, voisin)
 
 def convertir_donnees_noeud(graphe) : 
     for noeud in graphe.nodes:
@@ -227,7 +239,7 @@ def convertir_donnees_noeud(graphe) :
 
 import math
 
-def calculer_metrique_composite(champion,graphe, alpha=1, beta=0.8, gamma=1.9, delta=0.5, epsilon=5):
+def calculer_metrique_composite(champion,graphe, alpha=1, beta=1, gamma=1, delta=1, epsilon=1):
     # Normaliser les valeurs (par exemple, convertir le win_rate de pourcentage à décimal)
     win_rate = float(graphe.nodes[champion].get('Win').rstrip('%'))
     pick_rate = float(graphe.nodes[champion].get('Pick').rstrip('%'))
@@ -236,12 +248,14 @@ def calculer_metrique_composite(champion,graphe, alpha=1, beta=0.8, gamma=1.9, d
     nombre_de_games = float(graphe.nodes[champion].get('Games'))
     
     # Calculer le logarithme du nombre de games
-    log_nombre_de_games = math.log(1 + nombre_de_games) 
-    kda = kda * 10
+    log_nombre_de_games = math.log(nombre_de_games ) 
+    log_base_1 = math.log(1.3)
+    log_nombre_de_games = log_nombre_de_games/log_base_1
+    kda = kda 
     # Appliquer les poids pour chaque paramètre
     #metrique_composite = alpha * win_rate + beta * (100 - ban_rate) + gamma * pick_rate + delta * kda + epsilon * log_nombre_de_games
     metrique_composite = (alpha * win_rate) / (gamma * pick_rate) + (beta * ban_rate) + (delta * kda) + (epsilon * log_nombre_de_games)
-   
+    metrique_composite = (win_rate / log_nombre_de_games ) + ban_rate*0.075 + kda*0.01 + pick_rate*0.0001
     return metrique_composite
 
 def score_to_metrique(graphe):
@@ -252,14 +266,21 @@ def score_to_metrique(graphe):
 # Calculer la métrique composite
 score_to_metrique(graphe)
 #print(graphe.nodes["Miss fortune"]["Score"])
-print("Champion stable : ",champion_plus_stable(graphe,[],[],[]))
 
-print("Meilleur score : ",best_stat_score_champion(graphe))
+blue_picks = []
+red_picks = []
+blue_roles = []
+red_roles = []
+#ban_champion("Teemo",graphe)
+def afficher_meilleur_score_champ() : 
+    print(best_stat_score_champion(graphe)," : ",graphe.nodes[best_stat_score_champion(graphe)]["Score"])
+
+def afficher_meilleur_stable_champion() : 
+    champ = champion_plus_stable(graphe,[],[],[])
+    print(champ," : ",calculer_score_globale_champion(champ,graphe))
 
 
-
-
-
-
+afficher_meilleur_stable_champion()
+afficher_meilleur_score_champ()
 
 
