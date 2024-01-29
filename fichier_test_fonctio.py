@@ -4,8 +4,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import random
 import networkx as nx
+from scipy.optimize import minimize
 
 graphe = nx.read_graphml("./mon_graphe.graphml")
+pd = [9.15933995e-16,3.48769222e+00,3.72504135e+00,1.29504376e+00,1.48420521e-15]
 # Une fois le graphe contruit je doit cree des fonction pour repondre a des question apres quoi etablir des heuristique 
 
 # le meilleur champion a pick actuelement instant T
@@ -136,21 +138,15 @@ def calculer_score_globale_champion(champion,graphe, alpha=1, beta=1, gamma=1, d
     a = champion_counters_score(champion,graphe)
     b = champion_synrgys_score(champion,graphe)
     c = champion_matchups_score(champion,graphe)
+    return  alpha*float(graphe.nodes[champion]["Score"])/((beta*c+gamma*b)/2-(delta*a)) + epsilon
 
-    alpha = 7.70300424 # counter
-    beta = 2.14547029 #synrgy
-    gamma = 2.35279385 #matchup
-    delta = 1.05249256 #score champio
-    epsilon = 1.05652514
-    return  alpha*float(graphe.nodes[champion]["Score"])/((beta*c+gamma*b)/2-delta*a) + epsilon
-
-def champion_plus_stable(graphe,blue_pick,red_pick,blue_roles) :
+def champion_plus_stable(graphe,blue_pick,red_pick,blue_roles,*pd) :
     best = ''
     score = -10000
     for champion in graphe :
 
-        if score < calculer_metrique_composite(champion,graphe) and champion not in blue_pick and champion not in red_pick and graphe.nodes[champion]['Lane'] not in blue_roles:
-            score = calculer_metrique_composite(champion,graphe)
+        if score < calculer_score_globale_champion(champion,graphe,*pd) and champion not in blue_pick and champion not in red_pick and graphe.nodes[champion]['Lane'] not in blue_roles:
+            score = calculer_score_globale_champion(champion,graphe,*pd)
             best = champion
     return best
 
@@ -249,7 +245,7 @@ def calculer_metrique_composite(champion,graphe, alpha=1, beta=1, gamma=1, delta
     
     # Calculer le logarithme du nombre de games
     log_nombre_de_games = math.log(nombre_de_games ) 
-    log_base_1 = math.log(1.3)
+    log_base_1 = math.log(1.3) #1.27
     log_nombre_de_games = log_nombre_de_games/log_base_1
     kda = kda 
     # Appliquer les poids pour chaque paramètre
@@ -273,14 +269,61 @@ blue_roles = []
 red_roles = []
 #ban_champion("Teemo",graphe)
 def afficher_meilleur_score_champ() : 
-    print(best_stat_score_champion(graphe)," : ",graphe.nodes[best_stat_score_champion(graphe)]["Score"])
+    print("score : ",best_stat_score_champion(graphe)," : ",graphe.nodes[best_stat_score_champion(graphe)]["Score"])
 
 def afficher_meilleur_stable_champion() : 
-    champ = champion_plus_stable(graphe,[],[],[])
-    print(champ," : ",calculer_score_globale_champion(champ,graphe))
+    champ = champion_plus_stable(graphe,[],[],[],*pd)
+    print("stable : ",champ," : ",calculer_score_globale_champion(champ,graphe))
+
+def alpha_beta(graphe) : 
+    grapheTest = graphe
+    b_test_picks = []
+    r_test_picks = []
+    b_test_roles = []
+    score = - 10000
+    pick = ""
+    for champion in graphe :
+        grapheTest = graphe
+        pick_champion(champion,grapheTest,b_test_picks,b_test_roles) 
+        for champred1 in graphe :
+            if champred1 != champion :
+                for champred2 in graphe :
+                    if champred2 != champred1 and champred2 != champion :
+                        graphetest = grapheTest
+                        pick_en_face(champred1,graphetest,r_test_picks)
+                        pick_en_face(champred2,graphetest,r_test_picks)
+                        a = calculer_score_globale_champion(champion,graphetest)
+                        if score < a :
+                            score = a
+                            pick = champion
+                        print(champion,"->",champred1,"->",champred2)
+                            
+    return pick
+
+
 
 
 afficher_meilleur_stable_champion()
 afficher_meilleur_score_champ()
+
+# Fonction-objectif pour maximiser le score de Varus
+objective_function = lambda weights: calculer_score_globale_champion("Aatrox", graphe, *weights)
+
+# Contrainte pour s'assurer que les poids restent positifs
+constraints = ({'type': 'ineq', 'fun': lambda weights: weights})
+
+# Définition des poids initiaux
+initial_weights = [1, 1, 1, 1, 1]
+
+# Optimisation des poids
+result = minimize(objective_function, initial_weights, constraints=constraints)
+
+# Récupération des poids optimisés
+optimized_weights = result.x
+
+# Affichage des poids optimisés
+print("Poids optimisés:", optimized_weights)
+print("Champion stable : ",champion_plus_stable(graphe,[],[],[],*optimized_weights))
+print(alpha_beta(graphe))
 
 
