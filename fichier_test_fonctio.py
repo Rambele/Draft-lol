@@ -307,7 +307,7 @@ afficher_meilleur_stable_champion()
 afficher_meilleur_score_champ()
 
 # Fonction-objectif pour maximiser le score de Varus
-objective_function = lambda weights: calculer_score_globale_champion("Aatrox", graphe, *weights)
+objective_function = lambda weights: calculer_score_globale_champion("Leona", graphe, *weights)
 
 # Contrainte pour s'assurer que les poids restent positifs
 constraints = ({'type': 'ineq', 'fun': lambda weights: weights})
@@ -324,6 +324,6 @@ optimized_weights = result.x
 # Affichage des poids optimisés
 print("Poids optimisés:", optimized_weights)
 print("Champion stable : ",champion_plus_stable(graphe,[],[],[],*optimized_weights))
-print(alpha_beta(graphe))
+
 
 
