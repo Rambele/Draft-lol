@@ -6,7 +6,7 @@ import random
 import networkx as nx
 from scipy.optimize import minimize
 
-graphe = nx.read_graphml("./mon_graphe.graphml")
+graphe = nx.read_gml('mon_graphe.gml')
 pd = [-4.44089210e-15,1.58671718e+00,1.87418490e+00,1.02144791e+00,-4.86160690e-15]
 # Une fois le graphe contruit je doit cree des fonction pour repondre a des question apres quoi etablir des heuristique 
 
@@ -57,8 +57,6 @@ def get_champion_mt(champion,graphe) :
     matchup_champion = [neighbor for neighbor in graphe.successors(champion) if graphe[champion][neighbor]['type'] == 'Matchup']
     return matchup_champion
 
-
-#calculer le champion qui se fait le moins counter possible 
 
 
 def champion_moins_counter(graphe) :

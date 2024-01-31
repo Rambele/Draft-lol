@@ -47,11 +47,11 @@ for champion_element in champion_elements:
     champion_name = champion_name.replace(".", "")
     if  champion_name == 'Jarvan iv' :
         champion_name = 'Jarvan'
-    list_champ_name.append(champion_name)
-    # hewi pose probleme je le supp du graph  
-    graphe.add_node(champion_name)
-    links.append(champion_element.get_attribute('href'))
-    print(champion_name)
+    if champion_name != "Smolder" :   
+        list_champ_name.append(champion_name) 
+        graphe.add_node(champion_name)
+        links.append(champion_element.get_attribute('href'))
+        print(champion_name)
 
    
 i = 0 # le i pour acceder au lien numero i champion i pendant la boucle
@@ -68,15 +68,27 @@ for champion in list_champ_name:
         info_text = donnee_champ_element.text.split("\n")
         info = info_text[1].strip()
         donnees.append(info)
-    # A jouter le role de champion 
         
+    # A jouter le role de champion     
     wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="splash-content"]/div[1]/div/div/div/div[2]/div/h1/span[2]/span[1]')))
     role_champion_elements = driver.find_elements(By.XPATH, '//*[@id="splash-content"]/div[1]/div/div/div/div[2]/div/h1/span[2]/span[1]')
     for role_champion_element in role_champion_elements :
         info = role_champion_element.text
         donnees.append(info)
+    
+    #Ajouté classe champion 
+        #//*[@id="splash-content"]/div[1]/div/div/div/div[1]/div[1]
+        #//*[@id="splash-content"]/div[1]/div/div/div/div[1]/div[2]
+    wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="splash-content"]/div[1]/div/div/div/div[1]/div')))
+    classes = driver.find_elements(By.XPATH, '//*[@id="splash-content"]/div[1]/div/div/div/div[1]/div/img')
+    list_classe = []
+    for classe in classes :
+        list_classe.append(classe.get_attribute("alt"))
+    donnees.append(list_classe)
+
+    
     # Clés fixes
-    cles_fixes = ['Tier', 'Win', 'Role', 'Pick', 'Ban', 'Games', 'KDA', 'Score', 'Lane']
+    cles_fixes = ['Tier', 'Win', 'Role', 'Pick', 'Ban', 'Games', 'KDA', 'Score', 'Lane','Classe']
     # Créer un dictionnaire en utilisant les clés fixes
     donnees_champion = dict(zip(cles_fixes, donnees))
     print(donnees_champion)
@@ -176,8 +188,7 @@ for champion in list_champ_name:
 
 
 # Sauvgarder le graphe 
-chemin_du_fichier = "./mon_graphe.graphml"
-nx.write_graphml(graphe, chemin_du_fichier)
+nx.write_gml(graphe, 'mon_graphe.gml')
 
 #===========================================Graphe partie ===========================================
 # Afficher le graphe avec une mise en page améliorée
