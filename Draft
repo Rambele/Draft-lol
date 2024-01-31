@@ -21,7 +21,7 @@ f.score_to_metrique(graphe)
 driver = webdriver.Chrome()
 
 # Ouvrir la page web
-driver.get("https://draftlol.dawe.gg/taz_p3QF/ZZFPz4Zq")
+driver.get("https://draftlol.dawe.gg/pe-Qsnsw/7kK6Xz2t")
 
 # Fonction pour attendre que le joueur Red soit prêt et cliquer sur "Ready"
 def wait_for_red_turn(driver):

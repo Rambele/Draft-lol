@@ -7,7 +7,7 @@ import networkx as nx
 from scipy.optimize import minimize
 
 graphe = nx.read_graphml("./mon_graphe.graphml")
-pd = [9.15933995e-16,3.48769222e+00,3.72504135e+00,1.29504376e+00,1.48420521e-15]
+pd = [-4.44089210e-15,1.58671718e+00,1.87418490e+00,1.02144791e+00,-4.86160690e-15]
 # Une fois le graphe contruit je doit cree des fonction pour repondre a des question apres quoi etablir des heuristique 
 
 # le meilleur champion a pick actuelement instant T
@@ -307,7 +307,7 @@ afficher_meilleur_stable_champion()
 afficher_meilleur_score_champ()
 
 # Fonction-objectif pour maximiser le score de Varus
-objective_function = lambda weights: calculer_score_globale_champion("Leona", graphe, *weights)
+objective_function = lambda weights: calculer_score_globale_champion("Azir", graphe, *weights)
 
 # Contrainte pour s'assurer que les poids restent positifs
 constraints = ({'type': 'ineq', 'fun': lambda weights: weights})
