@@ -8,6 +8,11 @@ from scipy.optimize import minimize
 
 graphe = nx.read_gml('mon_graphe.gml')
 pd = [-4.44089210e-15,1.58671718e+00,1.87418490e+00,1.02144791e+00,-4.86160690e-15]
+pd = [3.05311332e-15,1.93712176e+00,1.61943703e+00,1.03381622e+00,4.19154530e-15]
+pd = [-4.44089210e-16,3.68251342e+00,2.12309074e+00,0.00000000e+00,0.00000000e+00]#udyr
+pd = [9.15933995e-16,3.48769222e+00,3.72504135e+00,1.29504376e+00,1.48420521e-15]
+pd = [2.22044605e-16,1.63475423e+00,1.67052905e+00,1.02661625e+00,0.00000000e+00]
+pd = [-1.88737914e-15,4.52493244e+00,4.72834057e+00,9.99555218e-01,-3.87792318e-15]
 # Une fois le graphe contruit je doit cree des fonction pour repondre a des question apres quoi etablir des heuristique 
 
 # le meilleur champion a pick actuelement instant T
@@ -249,8 +254,27 @@ def calculer_metrique_composite(champion,graphe, alpha=1, beta=1, gamma=1, delta
     # Appliquer les poids pour chaque paramètre
     #metrique_composite = alpha * win_rate + beta * (100 - ban_rate) + gamma * pick_rate + delta * kda + epsilon * log_nombre_de_games
     metrique_composite = (alpha * win_rate) / (gamma * pick_rate) + (beta * ban_rate) + (delta * kda) + (epsilon * log_nombre_de_games)
-    metrique_composite = (win_rate / log_nombre_de_games ) + ban_rate*0.075 + kda*0.01 + pick_rate*0.0001
-    return metrique_composite
+    metrique_composite = (win_rate / log_nombre_de_games ) + ban_rate*0.075 + kda*0.01 + pick_rate*0.0001 
+    return metrique_composite*classe_score(champion,graphe)
+
+#je donne un score au classe de champion 
+def classe_score(champion,graph) :
+        score = 0
+        for classe in graph.nodes[champion]["Classe"] :
+            if  classe=="Marksman" :
+                score +=1
+            elif classe=="Support" : 
+                score +=0.95
+            elif classe=="Tank" : 
+                score +=1.1
+            elif classe=="Fighter" : 
+                score +=0.9
+            elif classe=="Mage" : 
+                score +=1
+            else : #assassin
+                score+=0.9
+        return score/len(graph.nodes[champion]["Classe"])
+        
 
 def score_to_metrique(graphe):
     for champion in graphe :
@@ -299,11 +323,6 @@ def alpha_beta(graphe) :
     return pick
 
 
-
-
-afficher_meilleur_stable_champion()
-afficher_meilleur_score_champ()
-
 # Fonction-objectif pour maximiser le score de Varus
 objective_function = lambda weights: calculer_score_globale_champion("Azir", graphe, *weights)
 
@@ -322,6 +341,7 @@ optimized_weights = result.x
 # Affichage des poids optimisés
 print("Poids optimisés:", optimized_weights)
 print("Champion stable : ",champion_plus_stable(graphe,[],[],[],*optimized_weights))
-
+afficher_meilleur_stable_champion()
+afficher_meilleur_score_champ()
 
 
