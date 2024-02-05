@@ -263,17 +263,17 @@ def classe_score(champion,graph) :
         score = 0
         for classe in graph.nodes[champion]["Classe"] :
             if  classe=="Marksman" :
-                score +=0.95
+                score +=0.90
             elif classe=="Support" : 
-                score +=1
+                score +=0.7
             elif classe=="Tank" : 
-                score +=1.1
+                score +=0.9
             elif classe=="Fighter" : 
                 score +=1
             elif classe=="Mage" : 
-                score +=1
+                score +=1.1
             else : #assassin
-                score+=0.90
+                score+=0.80
         return score/len(graph.nodes[champion]["Classe"])
         
 

@@ -1,5 +1,6 @@
 # Fichiers Python
 *.pyc
+Cours_Scraping.py
 
 # Répertoire virtuel
 venv/

@@ -9,7 +9,7 @@ import time
 driver = webdriver.Chrome()
 
 # Ouvrir la page web
-driver.get("https://draftlol.dawe.gg/rMJgKYUB/GonWRnQ4")
+driver.get("https://draftlol.dawe.gg/f2XoiNhx/SCNHdeli")
 
 # Fonction pour attendre que le joueur Red soit prêt et cliquer sur "Ready"
 def wait_for_red_turn(driver):

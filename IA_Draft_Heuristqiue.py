@@ -29,7 +29,7 @@ def choisir_champion_avec_heuristique(graphe, champions_disponibles, list_role):
     return meilleur_champion
 
 
-# Fonction de draft
+# Fonction de draft ban les top meta , et pick les meilleurs qui restant 
 def Draft(graphe, champions_disponibles):
     list_role  = ['Top ', 'Jungle ','Mid ', 'ADC ', 'Support ']
     list_role_blue  = ['Top ', 'Jungle ','Mid ', 'ADC ', 'Support ']
@@ -150,3 +150,38 @@ Draft(graphe, champions_disponibles)
 # pour le moment j'utilise le score  'Score' presnet dans les donnée du champion ,  je peut ajuster 
 # ca en ajoutant le score des matchup : je calcule le score des contre , et le score des matchup pour 
 # un meilleur score total 
+from scipy.optimize import minimize
+
+# Fonction objectif à maximiser
+def objectif(poids):
+    # Paramètres à ajuster
+    alpha, beta, gamma, delta, epsilon = poids
+    
+    # Calcul des métriques pour tous les champions
+    scores_champions = []
+    for champion in graphe:  # Assurez-vous d'avoir la liste complète des champions
+        score_champion = calculer_score_globale_champion(champion, graphe, alpha, beta, gamma, delta, epsilon)
+        scores_champions.append(score_champion)
+    
+    # La fonction objectif est l'opposée du score de Varus par rapport aux autres champions
+    score_varus = calculer_score_globale_champion("Varus", graphe, alpha, beta, gamma, delta, epsilon)
+    return -score_varus
+
+# Supposons que vos poids initiaux soient tous égaux à 1 (vous pouvez ajuster cela)
+poids_initiaux = [1, 1, 1, 1, 1]
+
+# Contraintes (par exemple, assurez-vous que les poids sont tous positifs)
+contraintes = ({'type': 'ineq', 'fun': lambda x: x})
+
+# Exécution de l'optimisation
+resultat_optimisation = minimize(objectif, poids_initiaux, constraints=contraintes)
+
+# Récupération des poids optimisés
+poids_optimises = resultat_optimisation.x
+
+# Affichage des poids optimisés
+print("Poids optimisés :", poids_optimises)
+
+# Calcul de la métrique composite pour Varus avec les poids optimisés
+metrique_composite_varus_optimisee = calculer_score_globale_champion('Varus', graphe, *poids_optimises)
+print("Métrique composite optimisée pour Varus :", metrique_composite_varus_optimisee)

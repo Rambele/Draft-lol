@@ -24,7 +24,7 @@ graphe_adverse = graphe.copy()
 driver = webdriver.Chrome()
 
 # Ouvrir la page web
-driver.get("https://draftlol.dawe.gg/-pG-qVyZ/7hsK-WUn")
+driver.get("https://draftlol.dawe.gg/jwqUDflu/TYe4Cf2s")
 
 # Fonction pour attendre que le joueur Red soit prêt et cliquer sur "Ready"
 def wait_for_red_turn(driver):
@@ -175,7 +175,10 @@ try:
     click_sur_champion_random(driver,True) 
     time.sleep(0.5)
     click_sur_champion_random(driver,True) 
-    EC.text_to_be_present_in_element((By.XPATH, '//*[@id="root"]/div/div[7]'), "Finished")
+    
+    WebDriverWait(driver, 60).until(
+       EC.text_to_be_present_in_element((By.XPATH, '//*[@id="root"]/div/div[7]'), "Finished")
+    )
     red_side_picks.append(recuperer_info_red(driver,4))
     
     
