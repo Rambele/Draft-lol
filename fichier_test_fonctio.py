@@ -13,6 +13,7 @@ pd = [-4.44089210e-16,3.68251342e+00,2.12309074e+00,0.00000000e+00,0.00000000e+0
 pd = [9.15933995e-16,3.48769222e+00,3.72504135e+00,1.29504376e+00,1.48420521e-15]
 pd = [2.22044605e-16,1.63475423e+00,1.67052905e+00,1.02661625e+00,0.00000000e+00]
 pd = [-1.88737914e-15,4.52493244e+00,4.72834057e+00,9.99555218e-01,-3.87792318e-15]
+#pd = [-2.22044605e-16,1.27904409e+00,1.15715135e+00,1.00750185e+00,0.00000000e+00]
 # Une fois le graphe contruit je doit cree des fonction pour repondre a des question apres quoi etablir des heuristique 
 
 # le meilleur champion a pick actuelement instant T
@@ -83,8 +84,7 @@ def champion_moins_counter(graphe) :
         if best_counter_score < score_final : 
             best_counter_score = score_final
             best_champ = c
-    print("Meilleur champ en terme de counter : ", best_champ)
-    print("Le score : ", best_counter_score)
+    return best_champ
 
 def champion_counters_score(champion,graphe) :
     list = get_champion_cn(champion,graphe)
@@ -118,7 +118,7 @@ def champion_matchups_score(champion,graphe) :
         sum_score_final = sum_score_final + recupere_poid(champion,a,graphe)
         graphe.nodes[a]["Win"] =  win
         graphe.nodes[a]["Score"] = score
-    score_final = sum_score_final/len(list) if len(list) != 0 else 0
+    score_final = sum_score_final/len(list) if len(list) != 0 else 1
     return score_final
     
 def champion_synrgys_score(champion,graphe) : 
@@ -134,7 +134,7 @@ def champion_synrgys_score(champion,graphe) :
         sum_score_final = sum_score_final + calculer_metrique_composite(a,graphe)
         graphe.nodes[a]["Win"] =  win
         graphe.nodes[a]["Score"] = score
-    score_final =  sum_score_final/len(list) if len(list) != 0 else 0
+    score_final =  sum_score_final/len(list) if len(list) != 0 else 1
     return score_final
 
 def calculer_score_globale_champion(champion,graphe, alpha=1, beta=1, gamma=1, delta=1, epsilon=1) :
@@ -142,6 +142,7 @@ def calculer_score_globale_champion(champion,graphe, alpha=1, beta=1, gamma=1, d
     b = champion_synrgys_score(champion,graphe)
     c = champion_matchups_score(champion,graphe)
     return  alpha*float(graphe.nodes[champion]["Score"])/((beta*c+gamma*b)/2-(delta*a)) + epsilon
+    #return float(graphe.nodes[champion]["Score"])/(a*c/b)
 
 def champion_plus_stable(graphe,blue_pick,red_pick,blue_roles,*pd) :
     best = ''
@@ -262,17 +263,17 @@ def classe_score(champion,graph) :
         score = 0
         for classe in graph.nodes[champion]["Classe"] :
             if  classe=="Marksman" :
-                score +=1
-            elif classe=="Support" : 
                 score +=0.95
+            elif classe=="Support" : 
+                score +=1
             elif classe=="Tank" : 
                 score +=1.1
             elif classe=="Fighter" : 
-                score +=0.9
+                score +=1
             elif classe=="Mage" : 
                 score +=1
             else : #assassin
-                score+=0.9
+                score+=0.90
         return score/len(graph.nodes[champion]["Classe"])
         
 
@@ -323,8 +324,10 @@ def alpha_beta(graphe) :
     return pick
 
 
+
+
 # Fonction-objectif pour maximiser le score de Varus
-objective_function = lambda weights: calculer_score_globale_champion("Azir", graphe, *weights)
+objective_function = lambda weights: calculer_score_globale_champion("Xin zhao", graphe, *weights)
 
 # Contrainte pour s'assurer que les poids restent positifs
 constraints = ({'type': 'ineq', 'fun': lambda weights: weights})
@@ -343,5 +346,6 @@ print("Poids optimisés:", optimized_weights)
 print("Champion stable : ",champion_plus_stable(graphe,[],[],[],*optimized_weights))
 afficher_meilleur_stable_champion()
 afficher_meilleur_score_champ()
+
 
 
