@@ -1,0 +1,22 @@
+# Fichiers système
+__pycache__/
+
+# Fichiers d'environnement virtuel
+.env/
+
+# Fichiers de dépendances
+*.pyc
+*.pyo
+*.pyd
+
+# Fichiers de sauvegarde
+*.bak
+*.swp
+*~
+
+# Fichiers de configuration
+*.env
+*.pyc
+
+# Fichiers spécifiques à votre IDE (par exemple, pour VSCode)
+.vscode/
