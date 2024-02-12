@@ -1,18 +1,14 @@
 import networkx as nx
 import Equipe
-import ClasseeDraft
 import matplotlib.pyplot as plt
+
 
 class ClasseDraft:
     def __init__(self,graph):
         self.graphe = graph
         self.convertir_donnees_graphe_str_to_float()
-        self.poids_blue = [-1.88737914e-15,4.52493244e+00,4.72834057e+00,9.99555218e-01,-3.87792318e-15]#ref Aatrox
-        self.poids_red = [4.44089210e-16,4.10044378e+00,2.14595276e+00,2.22044605e-16,0.00000000e+00]#Taric
-        self.poids_red = [3.86357613e-14,3.62801259e+02,3.55370355e+02,2.69706788e+00,7.81461030e-14]#lee
-        self.poids_red = [-9.71445147e-15,2.33232063e+00,1.78483071e+00,9.90970722e-01,-1.75264124e-14]#leaona
-        self.poids_red = [2.22044605e-16,1.63475423e+00,1.67052905e+00,1.02661625e+00,0.00000000e+00]
-        self.poids_red = [9.15933995e-16,3.48769222e+00,3.72504135e+00,1.29504376e+00,1.48420521e-15]#ref Varus
+        self.poids_blue = [-1.88737914e-15,4.52493244e+00,4.72834057e+00,9.99555218e-01,-3.87792318e-15]
+        self.poids_red = [9.15933995e-16,3.48769222e+00,3.72504135e+00,1.29504376e+00,1.48420521e-15]
         self.blue = Equipe.Equipe(graph,self.poids_blue)
         self.red = Equipe.Equipe(graph,self.poids_red)
         self.tours = ["b","r","b","r","b","r","b","r","r","b","b","r","r","b","r","b","r","b","b","r"]
@@ -40,6 +36,23 @@ class ClasseDraft:
             self.red.action(champion,self.red.tours[int(self.letour/2)])
             self.blue.action_adverse(champion,self.red.tours[int(self.letour/2)])
         self.letour = self.letour + 1
+
+    #Partie de fonction pour l'envirenement IA 
+    def lancer_un_tour_draft_step(self,champion) :
+        if self.tours[self.letour] == "b" :
+            self.blue.action(champion,self.blue.tours[int(self.letour/2)])
+            self.red.action_adverse(champion,self.blue.tours[int(self.letour/2)])
+        else : 
+            self.red.action(champion,self.red.tours[int(self.letour/2)])
+            self.blue.action_adverse(champion,self.red.tours[int(self.letour/2)])
+        
+    def reward_action(self) : 
+        if self.tours[self.letour] == "b" :
+            return self.blue.stablite_champion_picks()
+        else : 
+            return self.red.stablite_champion_picks()
+    def get_observation(self) : 
+        return self.blue.bans,self.blue.picks,self.red.bans, self.red.picks
     
 
     def afficher_resultat(self) : 
@@ -60,7 +73,7 @@ class ClasseDraft:
                 try:    
                     if cle != "Lane" and cle != "Classe" :
                         valeur_numerique = float(valeur.rstrip('%'))
-                        graphe.nodes[noeud][cle] = valeur_numerique
+                        self.graphe.nodes[noeud][cle] = valeur_numerique
                 except ValueError:
                     pass
         for arrete in self.graphe.edges:
@@ -92,13 +105,14 @@ class ClasseDraft:
         # Afficher le graphe
         plt.show()
 
+    def champion_disponible(self) : 
+        champion_dispo = []
+        for champion in self.graphe : 
+            if champion not in self.blue.total_picks_bans : 
+                champion_dispo.append(champion)
+        return champion_dispo
 
-print("Classe draft")
-graphe = nx.read_gml('mon_graphe.gml')
-draft = ClasseDraft(graphe)
-draft.lancer_draft()
-draft.afficher_resultat()
-draft.afficher_noeuds_selectionnes()
+
 #afficher le score de la draft 
 
 

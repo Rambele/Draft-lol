@@ -232,3 +232,11 @@ class Equipe:
         for champion in self.picks :
             score+=self.calculer_metrique_composite_champion(champion,self.graphe)
         return score/len(self.picks)
+    
+    #Partie pour l'envirenement IA 
+
+    def stablite_champion_picks(self) : 
+        reward = 0
+        for champion in self.picks :
+            reward = reward + self.champion_cn_mt_sy_score(champion,self.graphe,*self.poids_opti)
+        return reward
