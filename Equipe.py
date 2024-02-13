@@ -3,6 +3,7 @@ import math
 class Equipe:
     def __init__(self, graphe,poids_opti):
         self.score_to_metrique(graphe) # changé le score donnée par metasrc
+        self.graphe_base = graphe
         self.tours = [0,0,0,1,1,1,0,0,1,1] #0 pour ban , 1 pour pick 
         self.picks = []
         self.bans = []
@@ -16,6 +17,19 @@ class Equipe:
         self.graphe_adverse = graphe.copy()
         self.total_picks_bans = []
         self.poids_opti = poids_opti
+
+    def reset_equipe(self) :
+        self.picks = []
+        self.bans = []
+        self.roles = []
+        self.type = [] # pour le type de draft plus tard 
+        self.picks_adverse = []
+        self.bans_advers = []
+        self.roles_advers = []
+        self.type_advers = []
+        self.graphe = self.graphe_base.copy()
+        self.graphe_adverse = self.graphe_base.copy()
+        self.total_picks_bans = []
 
     def pick(self,champion) : 
         self.picks.append(champion)

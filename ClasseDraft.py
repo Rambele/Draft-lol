@@ -14,7 +14,11 @@ class ClasseDraft:
         self.tours = ["b","r","b","r","b","r","b","r","r","b","b","r","r","b","r","b","r","b","b","r"]
         self.letour = 0
 
-
+    def reset_draft(self): 
+        self.letour = 0
+        self.blue.reset_equipe()
+        self.red.reset_equipe()
+        return self.get_observation()
     def lancer_draft(self) : 
         for i in range(len(self.tours)) : 
             if self.tours[i] == "b" :
@@ -27,6 +31,7 @@ class ClasseDraft:
                 self.blue.action_adverse(champion,self.red.tours[int(i/2)])
     
     def lancer_un_tour_draft(self) :
+        i = self.letour
         if self.tours[self.letour] == "b" :
             champion = self.blue.choix_pick_ban(self.blue.tours[int(i/2)])
             self.blue.action(champion,self.blue.tours[int(self.letour/2)])
@@ -51,9 +56,40 @@ class ClasseDraft:
             return self.blue.stablite_champion_picks()
         else : 
             return self.red.stablite_champion_picks()
-    def get_observation(self) : 
-        return self.blue.bans,self.blue.picks,self.red.bans, self.red.picks
-    
+    def get_observation(self) :
+        bb = ["VIDE","VIDE","VIDE","VIDE","VIDE"] if len(self.blue.bans) == 0 else self.blue.bans.copy()
+        bp = ["VIDE","VIDE","VIDE","VIDE","VIDE"] if len(self.blue.picks) == 0 else self.blue.picks.copy()
+        rb = ["VIDE","VIDE","VIDE","VIDE","VIDE"] if len(self.red.bans) == 0 else self.red.bans.copy()
+        rp = ["VIDE","VIDE","VIDE","VIDE","VIDE"] if len(self.red.picks) == 0 else self.red.picks.copy()
+        for i in range(6) :
+            if i > len(bb) :
+                bb.append("VIDE")
+            if i > len(bp) :
+                bp.append("VIDE")
+            if i > len(rb) :
+                rb.append("VIDE")
+            if i > len(rp) :
+                rp.append("VIDE")
+        all = bb+bp+rb+rp
+        stat = []
+        for i in all :
+            if i == "VIDE" :
+                stat.append(0)
+            else :
+                stat.append(self.trouve_champ_num(i))
+        return stat
+    def trouve_champ_num(self,champion):
+        i=1
+        for champ in self.graphe :
+            if champ == champion :
+                return i
+            i+=1
+    def cherche_champion_par_num(self,num) : 
+        i=0
+        for champion in self.champion_disponible() :
+            if i == num :
+                return champion
+            i+=1
 
     def afficher_resultat(self) : 
         print(self.blue.bans,"\t",self.red.bans)
@@ -90,7 +126,7 @@ class ClasseDraft:
         subgraph_nodes = set(self.blue.picks + self.red.picks)
         subgraph_edges = [(u, v) for u, v in self.graphe.edges() if u in subgraph_nodes and v in subgraph_nodes]
         # Créer un sous-graphe avec les nœuds et les arêtes filtrés
-        subgraph = graphe.subgraph(subgraph_nodes).copy()
+        subgraph = self.graphe.subgraph(subgraph_nodes).copy()
         subgraph.add_edges_from(subgraph_edges)
         # Afficher les nœuds du côté bleu en bleu
         nx.draw_networkx_nodes(subgraph, pos, nodelist=self.blue.picks, node_color='blue', label="Blue Team")
@@ -112,8 +148,13 @@ class ClasseDraft:
                 champion_dispo.append(champion)
         return champion_dispo
 
+'''
+graphe = nx.read_gml('mon_graphe.gml')
+draft = ClasseDraft(graphe)
+draft.blue.ban("Azir")
+draft.red.ban("Draven")
+stat = draft.get_observation()
+print(stat)
+print(len(stat))
 
-#afficher le score de la draft 
-
-
-    
+'''
