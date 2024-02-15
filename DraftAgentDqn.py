@@ -36,7 +36,9 @@ class DQNAgent:
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
 
-    def act(self, state):
+    def act(self, state, test=False) :
+        if test :
+            self.epsilon =0
         if np.random.rand() <= self.epsilon:
             return random.choice(range(self.action_size))
         q_values = self.model(torch.Tensor(state))

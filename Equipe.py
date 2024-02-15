@@ -250,7 +250,5 @@ class Equipe:
     #Partie pour l'envirenement IA 
 
     def stablite_champion_picks(self) : 
-        reward = 0
-        for champion in self.picks :
-            reward = reward + self.champion_cn_mt_sy_score(champion,self.graphe,*self.poids_opti)
-        return reward
+        
+        return 0 if len(self.picks) == 0 else self.score_draft() 

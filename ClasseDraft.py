@@ -53,9 +53,9 @@ class ClasseDraft:
         
     def reward_action(self) : 
         if self.tours[self.letour] == "b" :
-            return self.blue.stablite_champion_picks()
+            return self.blue.stablite_champion_picks() #- self.red.stablite_champion_picks()
         else : 
-            return self.red.stablite_champion_picks()
+            return self.red.stablite_champion_picks() #- self.red.stablite_champion_picks()
     def get_observation(self) :
         bb = ["VIDE","VIDE","VIDE","VIDE","VIDE"] if len(self.blue.bans) == 0 else self.blue.bans.copy()
         bp = ["VIDE","VIDE","VIDE","VIDE","VIDE"] if len(self.blue.picks) == 0 else self.blue.picks.copy()
