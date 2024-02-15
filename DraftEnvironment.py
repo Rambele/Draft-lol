@@ -125,7 +125,6 @@ for step in range(20):
         agent.update_action_size(len(env.draft.champion_disponible()))
         action = agent.act(state)  # L'agent choisit une action
         next_state, reward, done, _ = env.step(action,True)  # Exécutez l'action dans l'environnement
-        dernier_reward=reward
     else : 
         action = env.draft.red.choix_pick_ban(env.draft.red.tours[int(step/2)])
         next_state, reward, done, _ = env.step(action,False)
