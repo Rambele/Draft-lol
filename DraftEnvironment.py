@@ -29,7 +29,7 @@ class DraftEnvironment(gym.Env):
         
         #convertir l'action en un nom de champion
         if agent :
-            action = self.draft.cherche_champion_par_num(action)
+            action = self.draft.indice_to_champion(self.draft.champion_indice_list[action])
         #Lancer un tour de draft 
         self.draft.lancer_un_tour_draft_step(action)
 
@@ -73,7 +73,7 @@ env = DraftEnvironment(graphe)
 K = 5  # Taille maximale des listes
 N = int(len(env.draft.champion_disponible()))
 state_size = 20
-action_size =  len(env.draft.champion_disponible())
+action_size =  len(env.draft.champion_indice_list)
 agent = DraftAgentDqn.DQNAgent(state_size, action_size)
 agent.model.load_state_dict(torch.load('dqn_model.pth'))
 display_interval = 10
@@ -90,7 +90,7 @@ for episode in range(num_episodes):
     action = 0
     for step in range(20):
         if env.draft.tours[step] == "b" :
-            agent.update_action_size(len(env.draft.champion_disponible()))
+            agent.update_action_size(len(env.draft.champion_indice_list))
             action = agent.act(state)  # L'agent choisit une action
             next_state, reward, done, _ = env.step(action)  # Exécutez l'action dans l'environnement
 

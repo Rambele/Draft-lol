@@ -13,11 +13,14 @@ class ClasseDraft:
         self.red = Equipe.Equipe(graph,self.poids_red)
         self.tours = ["b","r","b","r","b","r","b","r","r","b","b","r","r","b","r","b","r","b","b","r"]
         self.letour = 0
+        #pour l'agent 
+        self.champion_indice_list = self.noeud_to_list_indice()
 
     def reset_draft(self): 
         self.letour = 0
         self.blue.reset_equipe()
         self.red.reset_equipe()
+        self.champion_indice_list = self.noeud_to_list_indice()
         return self.get_observation()
     def lancer_draft(self) : 
         for i in range(len(self.tours)) : 
@@ -43,6 +46,26 @@ class ClasseDraft:
         self.letour = self.letour + 1
 
     #Partie de fonction pour l'envirenement IA 
+        
+    def noeud_to_list_indice(self):
+        champion_indice_list = []
+        indice = 0
+        for chamion in self.graphe : 
+            champion_indice_list.append(indice)
+            indice+=1
+        return champion_indice_list
+    def champion_to_indice(self,champion):
+        indice = 0
+        for champ in self.graphe : 
+            if champ == champion :
+                return indice
+            indice+=1
+    def indice_to_champion(self,indice):
+        i = 0
+        for champ in self.graphe : 
+            if i == indice :
+                return champ
+            i+=1
     def lancer_un_tour_draft_step(self,champion) :
         if self.tours[self.letour] == "b" :
             self.blue.action(champion,self.blue.tours[int(self.letour/2)])
@@ -50,6 +73,8 @@ class ClasseDraft:
         else : 
             self.red.action(champion,self.red.tours[int(self.letour/2)])
             self.blue.action_adverse(champion,self.red.tours[int(self.letour/2)])
+        #une fois le champion choisi que ca soit pick ou ban j'enleve l'indice de ce champion
+        self.champion_indice_list.remove(self.champion_to_indice(champion))
         
     def reward_action(self) : 
         if self.tours[self.letour] == "b" :
