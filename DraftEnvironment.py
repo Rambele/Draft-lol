@@ -59,7 +59,7 @@ class DraftEnvironment(gym.Env):
         pass
 
     def calculate_reward(self):
-        return self.draft.reward_action()
+        return self.draft.reward_action_only_blue()
 
     def check_done(self):
         return True if self.draft.letour==19 else False #0--->19 = 20 tours 
@@ -78,7 +78,7 @@ agent = DraftAgentDqn.DQNAgent(state_size, action_size)
 agent.model.load_state_dict(torch.load('dqn_model.pth'))
 display_interval = 10
 # Paramètres d'entraînement
-num_episodes = 0
+num_episodes = 2000
 batch_size = 16
 
 # Boucle d'entraînement
@@ -87,21 +87,22 @@ for episode in range(num_episodes):
     initial_state = env.draft.get_observation()
     print("Taille de l'état initial:", initial_state)
     state =  torch.tensor(state, dtype=torch.float32)
-
+    action = 0
     for step in range(20):
         if env.draft.tours[step] == "b" :
             agent.update_action_size(len(env.draft.champion_disponible()))
             action = agent.act(state)  # L'agent choisit une action
             next_state, reward, done, _ = env.step(action)  # Exécutez l'action dans l'environnement
 
+            
+        else : 
+            actionHeuristique = env.draft.red.choix_pick_ban(env.draft.red.tours[int(step/2)])
+            next_state, reward, done, _ = env.step(actionHeuristique,False)
             # Stockez l'expérience dans la mémoire de relecture
             agent.remember(state, action, reward, next_state, done)
             # Mettez à jour les poids du réseau neuronal en utilisant la mémoire de relecture
             agent.replay(batch_size)
             #state = np.reshape(next_state, [1, state_size])
-        else : 
-            action = env.draft.red.choix_pick_ban(env.draft.red.tours[int(step/2)])
-            env.step(action,False)
 
         if done:
             #env.draft.afficher_resultat()
@@ -135,7 +136,7 @@ for step in range(20):
 print("Dernier reward : ", dernier_reward)
 env.draft.afficher_resultat()        
 # Sauvegarde du modèle (si nécessaire)
-torch.save(agent.model.state_dict(), 'dqn_model.pth2')
+torch.save(agent.model.state_dict(), 'dqn_model.pth')
 '''
 # Exemple d'utilisation
 graphe = nx.read_gml('mon_graphe.gml')
