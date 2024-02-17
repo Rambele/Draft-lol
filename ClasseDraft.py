@@ -83,7 +83,7 @@ class ClasseDraft:
             return self.red.stablite_champion_picks() #- self.red.stablite_champion_picks()
     #recompense apres le tour de l'advecaire
     def reward_action_only_blue(self) :
-        return self.blue.stablite_champion_picks()
+            return self.blue.stablite_champion_picks()-self.red.stablite_champion_picks()
     def get_observation(self) :
         bb = ["VIDE","VIDE","VIDE","VIDE","VIDE"] if len(self.blue.bans) == 0 else self.blue.bans.copy()
         bp = ["VIDE","VIDE","VIDE","VIDE","VIDE"] if len(self.blue.picks) == 0 else self.blue.picks.copy()

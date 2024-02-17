@@ -27,9 +27,9 @@ class DQNAgent:
         self.memory = deque(maxlen=2000)  # Mémoire de relecture pour l'entraînement
         self.gamma = 0.95  # Facteur d'actualisation
         self.epsilon = 1.0  # Exploration-Exploitation Tradeoff
-        self.epsilon_decay = 0.995
+        self.epsilon_decay = 0.99 #0.9999
         self.epsilon_min = 0.01
-        self.learning_rate = 0.001
+        self.learning_rate = 0.01
         self.model = DQN(state_size, action_size)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
@@ -38,7 +38,7 @@ class DQNAgent:
 
     def act(self, state, test=False) :
         if test :
-            self.epsilon =0
+            self.epsilon = 0
         if np.random.rand() <= self.epsilon:
             return random.choice(range(self.action_size))
         q_values = self.model(torch.Tensor(state))
