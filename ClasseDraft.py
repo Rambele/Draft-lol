@@ -105,6 +105,8 @@ class ClasseDraft:
                 stat.append(0)
             else :
                 stat.append(self.trouve_champ_num(i))
+        #j'ajoute le tour 
+        stat.append(self.letour)
         return stat
     def trouve_champ_num(self,champion):
         i=1

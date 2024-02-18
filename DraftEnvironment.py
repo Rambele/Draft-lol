@@ -71,13 +71,13 @@ class DraftEnvironment(gym.Env):
 
 graphe = nx.read_gml('mon_graphe.gml')
 env = DraftEnvironment(graphe)
-state_size = 20
+state_size = 21
 action_size =  len(env.draft.champion_indice_list)
 agent = DraftAgentDqn.DQNAgent(state_size, action_size)
-agent.model.load_state_dict(torch.load('dqn_model.pth4.2'))
+#agent.model.load_state_dict(torch.load('dqn_model.pth4.1'))
 display_interval = 10
 # Paramètres d'entraînement
-num_episodes = 500
+num_episodes = 100
 batch_size = 32
 
 # Boucle d'entraînement
@@ -134,7 +134,7 @@ for episode in range(num_episodes):
 #jouer cntre mon model 
 # Apres l'entrainement je rend epsilon a zero et je le lance contre le model heuristique 
 if num_episodes != 0 :
-    torch.save(agent.model.state_dict(), 'dqn_model.pth4.2')
+    torch.save(agent.model.state_dict(), 'dqn_model.pth5')
 print("Lancer le test  : ...")
 time.sleep(5)
 state = env.reset()  # Réinitialiser l'environnement pour un nouvel épisode
