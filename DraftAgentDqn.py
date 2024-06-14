@@ -27,7 +27,7 @@ class DQNAgent:
         self.memory = deque(maxlen=2000)  # Mémoire de relecture pour l'entraînement
         self.gamma = 0.95  # Facteur d'actualisation
         self.epsilon = 1.0  # Exploration-Exploitation Tradeoff
-        self.epsilon_decay = 0.99 #0.9999
+        self.epsilon_decay = 0.999 #0.9999
         self.epsilon_min = 0.01
         self.learning_rate = 0.01
         self.model = DQN(state_size, action_size)

@@ -52,6 +52,7 @@ for episode in range(num_episodes):
                 print("Blue picks : ", env.draft.blue.picks)
                 print("Red bans : ", env.draft.red.bans)
                 print("Red picks : ", env.draft.red.picks)
+                print("REWARD  : ", reward)
                 break
 
             
@@ -82,6 +83,7 @@ for episode in range(num_episodes):
                 print("Blue picks : ", env.draft.blue.picks)
                 print("Red bans : ", env.draft.red.bans)
                 print("Red picks : ", env.draft.red.picks)
+                print("REWARD  : ", reward)
 #jouer cntre mon model 
 # Apres l'entrainement je rend epsilon a zero et je le lance contre le model heuristique 
 if num_episodes != 0 :

@@ -22,6 +22,7 @@ class ClasseDraft:
         self.red.reset_equipe()
         self.champion_indice_list = self.noeud_to_list_indice()
         return self.get_observation()
+    
     def lancer_draft(self) : 
         for i in range(len(self.tours)) : 
             if self.tours[i] == "b" :
@@ -107,6 +108,9 @@ class ClasseDraft:
                 stat.append(self.trouve_champ_num(i))
         #j'ajoute le tour 
         stat.append(self.letour)
+        #ajouter la liste des champion 
+        champions_disponibles = [1 if champ in self.red.total_picks_bans else 0 for champ in self.graphe.nodes]
+        stat.extend(champions_disponibles)
         return stat
     def trouve_champ_num(self,champion):
         i=1

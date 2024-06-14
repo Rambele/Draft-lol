@@ -70,8 +70,8 @@ class DraftEnvironment(gym.Env):
     
 
 graphe = nx.read_gml('mon_graphe.gml')
-env = DraftEnvironment(graphe)
-state_size = 21
+env = DraftEnvironment(graphe.copy())
+state_size = 21 + len(env.draft.champion_indice_list)
 action_size =  len(env.draft.champion_indice_list)
 agent = DraftAgentDqn.DQNAgent(state_size, action_size)
 #agent.model.load_state_dict(torch.load('dqn_model.pth4.1'))
@@ -84,7 +84,7 @@ batch_size = 32
 for episode in range(num_episodes):
     state = env.reset()  # Réinitialiser l'environnement pour un nouvel épisode
     initial_state = env.draft.get_observation()
-    print("Taille de l'état initial:", initial_state)
+    #print("Taille de l'état initial:", initial_state)
     state =  torch.tensor(state, dtype=torch.float32)
     action = 0
     for step in range(20):
@@ -101,12 +101,18 @@ for episode in range(num_episodes):
                 print("Blue picks : ", env.draft.blue.picks)
                 print("Red bans : ", env.draft.red.bans)
                 print("Red picks : ", env.draft.red.picks)
+                reward = -1000
+                print("REWARD  : ", reward)
+                
                 break
 
             
         else : 
             actionHeuristique = env.draft.red.choix_pick_ban(env.draft.red.tours[int(step/2)])
+            rewardX = 0
+            if reward == -1000 : rewardX = -1000
             next_state, reward, done, _ = env.step(actionHeuristique,False)
+            if rewardX == -1000 : reward = -1000
             # Stockez l'expérience dans la mémoire de relecture
             agent.remember(state, action, reward, next_state, done)
             # Mettez à jour les poids du réseau neuronal en utilisant la mémoire de relecture
@@ -131,6 +137,7 @@ for episode in range(num_episodes):
                 print("Blue picks : ", env.draft.blue.picks)
                 print("Red bans : ", env.draft.red.bans)
                 print("Red picks : ", env.draft.red.picks)
+                print("REWARD  : ", reward)
 #jouer cntre mon model 
 # Apres l'entrainement je rend epsilon a zero et je le lance contre le model heuristique 
 if num_episodes != 0 :
