@@ -105,6 +105,11 @@ for episode in range(num_episodes):
                 print("REWARD  : ", reward)
                 
                 break
+            if env.draft.indice_to_champion(action) in env.draft.blue.roles :
+                reward = -1000
+            agent.remember(state, action, reward, next_state, done)
+            # Mettez à jour les poids du réseau neuronal en utilisant la mémoire de relecture
+            agent.replay(batch_size)
 
             
         else : 
