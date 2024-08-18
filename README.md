@@ -1,2 +1,2 @@
 # Draft-lol
-Cree un programme de draft autonome , qui etre utilisé en aide a la draft , formation a la draft preparation , jouer au draft de league of legends
+Création d'un programme de draft autonome, pouvant être utilisé pour assister au processus de draft, pour la formation et la préparation des drafts, ainsi que pour simuler des drafts dans League of Legends.
